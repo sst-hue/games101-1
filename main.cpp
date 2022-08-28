@@ -4,6 +4,8 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
 
+using namespace Eigen;
+
 constexpr double MY_PI = 3.1415926;
 
 Eigen::Matrix4f get_view_matrix(Eigen::Vector3f eye_pos)
@@ -26,7 +28,14 @@ Eigen::Matrix4f get_model_matrix(float rotation_angle)
     // TODO: Implement this function
     // Create the model matrix for rotating the triangle around the Z axis.
     // Then return it.
-
+    Eigen::Matrix4f translate;
+    // Ðý×ª¾ØÕó
+    float angle = rotation_angle / 180.f * acos(-1);
+    translate <<    cos(angle), -sin(angle),    0,  0,
+                    sin(angle), cos(angle),     0,  0,
+                    0,          0,              1,  0,
+                    0,          0,              0,  1;
+    model = translate * model;
     return model;
 }
 
@@ -37,9 +46,29 @@ Eigen::Matrix4f get_projection_matrix(float eye_fov, float aspect_ratio,
 
     Eigen::Matrix4f projection = Eigen::Matrix4f::Identity();
 
+    float height = tan((eye_fov / 360) * MY_PI) * abs(zNear);
+    float weight = height / aspect_ratio;
+
     // TODO: Implement this function
     // Create the projection matrix for the given parameters.
     // Then return it.
+
+    // Í¸ÊÓ¾ØÕó
+    Eigen::Matrix4f translate1;
+    translate1 <<   zNear,  0,      0,              0,
+                    0,      zNear,  0,              0,
+                    0,      0,      (zNear + zFar), -1.0 * zNear * zFar,
+                    0,      0,      1,              0;
+
+    // Õý½»¾ØÕó
+    Eigen::Matrix4f translate2;
+    translate2 <<   1.f / weight,   0,              0,                      0,
+                    0,              1.f / height,   0,                      0,
+                    0,              0,              2.f / (zNear - zFar),   -(zNear - zFar) / 2.f,
+                    0,              0,              0,                      1;
+
+
+    projection = translate2 * translate1 * projection;
 
     return projection;
 }
