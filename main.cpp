@@ -1,4 +1,4 @@
-#include "Triangle.hpp"
+ï»¿#include "Triangle.hpp"
 #include "rasterizer.hpp"
 #include <eigen3/Eigen/Eigen>
 #include <iostream>
@@ -29,7 +29,7 @@ Eigen::Matrix4f get_model_matrix(float rotation_angle)
     // Create the model matrix for rotating the triangle around the Z axis.
     // Then return it.
     Eigen::Matrix4f translate;
-    // Ðý×ª¾ØÕó
+    // æ—‹è½¬çŸ©é˜µ
     float angle = rotation_angle / 180.f * acos(-1);
     translate <<    cos(angle), -sin(angle),    0,  0,
                     sin(angle), cos(angle),     0,  0,
@@ -43,32 +43,37 @@ Eigen::Matrix4f get_projection_matrix(float eye_fov, float aspect_ratio,
                                       float zNear, float zFar)
 {
     // Students will implement this function
-
     Eigen::Matrix4f projection = Eigen::Matrix4f::Identity();
 
-    float height = tan((eye_fov / 360) * MY_PI) * abs(zNear);
+    float height = -tan((eye_fov / 360) * MY_PI) * abs(zNear);
     float weight = height / aspect_ratio;
 
     // TODO: Implement this function
     // Create the projection matrix for the given parameters.
     // Then return it.
 
-    // Í¸ÊÓ¾ØÕó
+    // é€è§†çŸ©é˜µ
     Eigen::Matrix4f translate1;
-    translate1 <<   zNear,  0,      0,              0,
-                    0,      zNear,  0,              0,
-                    0,      0,      (zNear + zFar), -1.0 * zNear * zFar,
-                    0,      0,      1,              0;
+    translate1 <<   zNear,  0,      0,                  0,
+                    0,      zNear,  0,                  0,
+                    0,      0,      (zNear + zFar),     -1.0 * zNear * zFar,
+                    0,      0,      1,                  0;
 
-    // Õý½»¾ØÕó
+    // å¹³ç§»çŸ©é˜µ
     Eigen::Matrix4f translate2;
-    translate2 <<   1.f / weight,   0,              0,                      0,
+    translate2 <<   1,  0,  0,  0,
+                    0,  1,  0,  0,
+                    0,  0,  1,  -(zNear + zFar) / 2.f,
+                    0,  0,  0,  1.f;
+
+    // ç¼©æ”¾çŸ©é˜µ
+    Eigen::Matrix4f translate3;
+    translate3 <<   1.f / weight,   0,              0,                      0,
                     0,              1.f / height,   0,                      0,
-                    0,              0,              2.f / (zNear - zFar),   -(zNear - zFar) / 2.f,
-                    0,              0,              0,                      1;
+                    0,              0,              2.f / (zNear - zFar),   0,
+                    0,              0,              0,                      1.f;
 
-
-    projection = translate2 * translate1 * projection;
+    projection = (translate3 * translate2) * translate1 * projection;
 
     return projection;
 }
